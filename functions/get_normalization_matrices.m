@@ -16,19 +16,8 @@ function [norm_mat] = get_normalization_matrices(data)
 
 
 % get Info 
-am_cams = size(data,1)/3;  
-am_points = size(data,2);   
-
-%------------------------------
-%
-% FILL IN THIS PART
-%
-%------------------------------
-
-% as a first test 
-for hi1 = 1:am_cams
-  norm_mat(hi1*3-2:hi1*3,:) = eye(3);
-end
+am_cams = size(data,1)/3;
+am_points = size(data,2);
 
 for cam = 1:am_cams
     
@@ -59,6 +48,7 @@ for cam = 1:am_cams
     end
     distance = distance / points;
     
+    % Construct the resulting norm_mat that corresponds to point cam.
     sqrt2 = sqrt(2);
     N = [sqrt2/distance, 0, -1*sqrt2*c_x/distance;
         0, sqrt2/distance, -1*sqrt2*c_y/distance;

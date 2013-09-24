@@ -46,11 +46,8 @@ beta = [zeros(3,am_points);
 
 Q = [alpha; beta];
 
-% singular value decomposition
 [~,~,V] = svd(Q);
 
-% take the best eigenvector
 h = V(:,end);
 
-% construct the homography matrix
 H = [h(1:3).'; h(4:6).'; h(7:9).'];

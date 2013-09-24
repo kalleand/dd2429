@@ -36,30 +36,22 @@ for hi1 = 1:am_cams
   data_norm(hi1*3-2:hi1*3,:) = norm_mat(hi1*3-2:hi1*3,:) * data(hi1*3-2:hi1*3,:); 
 end
 
-% The homography for ref_view is alway the identity matrix. The points in
-% ref_view should be the same in the resulting panorama.
 homographies{ref_view} = eye(3);
 
-N_ref_inv = inv(norm_mat(am_cams*3-2:am_cams*3,:));
+N_ref_inv = inv(norm_mat(7:9,:));
 
-% Constructs the homographies with normalization.
+% Constru
 for i = 1:(am_cams - 1)
     norm_homographies{i} = det_homographies(data_norm(i*3-2:i*3,:), data_norm(7:9,:));
     N = norm_mat(3*i-2:3*i,:);
     homographies{i} = N_ref_inv * norm_homographies{i} * N;
 end
 
-% Constructs the homographies without normalization.
-%for i = 1:(am_cams - 1)
-%    homographies{i} = det_homographies(data(i*3-2:i*3,:), data(am_cams*3-2:am_cams*3,:));
-%end
-
-
 % check error in the estimated homographies
 for hi1 = 1:am_cams
   [error_mean, error_max] = check_error_homographies(homographies{hi1},data(3*hi1-2:3*hi1,:),data(3*ref_view-2:3*ref_view,:));
   fprintf('Between view %d and ref. view; ', hi1); % Info
-  fprintf('average error: %5.2f; maximum error: %5.2f \n', error_mean, error_max);
+  fprintf('average error: %5.2f; maximum error: %5.2f \n', error_mean, error_max); 
 end
 
 % create the new warped image
