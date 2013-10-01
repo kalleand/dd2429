@@ -1,20 +1,14 @@
-% function data = click_multi_view(images, am_cams, dataset, para)
-%
-% Method: click points and display the dataset in multiple views.
-% 
-%
-% Input: all the images as cell(n,1), each image is in double format
-%        am_cams - the amount of cameras (m)
-%        dataset - (3*m,n) matrix of m cameras, n points (optional)
-%        para - 0: marker for the dataset (0-symbol, 1-index, 2-both) (optional)
-%
-%        If images = [] then the background image is white. 
-%
-% Output: the dataset + the new data 
-%         
-%
 
-function [data] = click_multi_view(images, am_cams, dataset, para)
+% Method: click points and display the dataset in multiple views.
+%
+% images    Cx1 cell array of images.
+%           Each image should be in double format.
+%
+% data      3xNxC array of the clicked image points in all views, in
+%           homogeneous coordinates.
+
+function [data] = click_multi_view( images )
+%function [data] = click_multi_view(images, am_cams, dataset, para)
 
 disp('Options:  left( and middle) button - click a point in each view (green)');
 disp('          right button - finish a correspondence of points (red)');
@@ -22,19 +16,23 @@ disp('          u - (up) change to next image (active)');
 disp('          d - (down) change to previouse image (active)');
 disp('          e - (end) stop the clicking process');
 
+am_cams = length( images );
+am_points = 0;
+data = zeros(3*am_cams,am_points);
+
 % set default 
-if (nargin == 2)
-  am_points = 0; 
-  para = 0; 
-  data = zeros(3*am_cams,am_points);
-elseif (nargin == 3)
-  am_points = size(dataset,2); 
-  data = dataset; 
-  para = 0; 
-else 
-  am_points = size(dataset,2);  
-  data = dataset; 
-end
+% if (nargin == 2)
+%   am_points = 0; 
+%   para = 0; 
+%   data = zeros(3*am_cams,am_points);
+% elseif (nargin == 3)
+%   am_points = size(dataset,2); 
+%   data = dataset; 
+%   para = 0; 
+% else 
+%   am_points = size(dataset,2);  
+%   data = dataset; 
+% end
 x_size_def = 100;
 y_size_def = 100;
 
@@ -144,4 +142,14 @@ while (finished > 0)
       disp('no influence'); 
    end
 end
+
+% Change to 3xNxC format:
+am_points = size( data, 2 );
+new_data = zeros( 3, am_points, am_cams );
+for c=1:am_cams
+    new_data(:,:,c) = data(c*3-2:c*3,:);
+end
+data = new_data;
+
+
 

@@ -1,73 +1,121 @@
-% Script: generate_panorama
+% function image1 = generate_panorama(images, homographies)
 %
-% Method: Genetrate one image out of multiple images. 
-%         Where all images are from a camera with the 
-%         same(!) center of projection. All the images 
-%         are registered to one reference view (ref_view)
+% Method:   Warp all the images into one image according to the
+%           corresponding homography. The order of the images determine 
+%           which image is on top.
 %
+%           Let C be the number of cameras.
+% 
+% Input:    images is a Cx1 cell-array of images (double).
+%
+%           homographies is a 3x3xC array of all homographies.
+%           It is: point(image ref) = homographies(:,:,c) * point(image c)
+% 
+% Output:   The new warped image in (double)
 
-% adjustments
-format compact;
-format short g;
+function image1 = generate_panorama( images, homographies )
 
-% Parameters fot the process 
-ref_view = 3; % Reference view
-am_cams = 3; % Amount of cameras
-name_file_images = 'names_images_kthsmall.txt';
-name_panorama = 'images/panorama_image.jpg';
+% get Info 
+am_cams = size(images,1);
 
-% initialise
-homographies = cell(am_cams,1); % we have: point(ref_view) = homographies{i} * point(image i)
-norm_homographies = cell(am_cams,1);
-data = [];
-data_norm = [];
+% Convert format:
+new_homographies = cell(am_cams,1);
+for c=1:am_cams
+    new_homographies{c} = homographies(:,:,c);
+end
+homographies = new_homographies;
 
-% load the images 
-[images, name_loaded_images] = load_images_grey(name_file_images, am_cams);
+% get the size of the new image  
+minx = 1;
+miny = 1;
+maxx = 1; 
+maxy = 1;
 
-% click some points or load the data 
-load 'data/data_kth.mat' data; % if you load a clicked sequnce 
-%data = click_multi_view(images, am_cams, data, 0); % for clicking and displaying data
-%save 'data/data_kth.mat' data; % for later use 
-
-% normalize the data 
-[norm_mat] = get_normalization_matrices(data);
 for hi1 = 1:am_cams
-  data_norm(hi1*3-2:hi1*3,:) = norm_mat(hi1*3-2:hi1*3,:) * data(hi1*3-2:hi1*3,:); 
+  
+  % the original corners
+  sizex = size(images{hi1},1);
+  sizey = size(images{hi1},2);
+  cor1 = zeros(3,0);
+  cor1 = [cor1,[1,1,1]'];
+  cor1 = [cor1,[sizex,1,1]'];
+  cor1 = [cor1,[1,sizey,1]'];
+  cor1 = [cor1,[sizex,sizey,1]'];
+  
+  % warp the corners
+  cor2 = homographies{hi1} * cor1;
+  for hi2 = 1:4 
+    cor2(:,hi2) = round(cor2(:,hi2) / cor2(3,hi2)); 
+  end
+
+  % get the maxs and mins 
+  for hi2 = 1:4 
+    if(cor2(1,hi2) < minx)
+      minx = cor2(1,hi2);
+    end
+    if(cor2(1,hi2) > maxx)
+      maxx = cor2(1,hi2);
+    end
+    if(cor2(2,hi2) < miny)
+      miny = cor2(2,hi2);
+    end
+    if(cor2(2,hi2) > maxy)
+      maxy = cor2(2,hi2);
+    end
+  end 
+
 end
 
-% The homography for ref_view is alway the identity matrix. The points in
-% ref_view should be the same in the resulting panorama.
-homographies{ref_view} = eye(3);
+% determine the shift and size
+pan_shiftx = 1-minx;
+pan_shifty = 1-miny;
+pan_sizex = maxx+pan_shiftx;
+pan_sizey = maxy+pan_shifty;
 
-N_ref_inv = inv(norm_mat(am_cams*3-2:am_cams*3,:));
+% initialze the new image 
+image1 = zeros(pan_sizex,pan_sizey); % black image 
 
-% Constructs the homographies with normalization.
-for i = 1:(am_cams - 1)
-    norm_homographies{i} = det_homographies(data_norm(i*3-2:i*3,:), data_norm(7:9,:));
-    N = norm_mat(3*i-2:3*i,:);
-    homographies{i} = N_ref_inv * norm_homographies{i} * N;
-end
+% Info 
+%fprintf('The panoramic image will be of size (x,y): %d , %d \n\n', pan_sizex, pan_sizey);
 
-% Constructs the homographies without normalization.
-%for i = 1:(am_cams - 1)
-%    homographies{i} = det_homographies(data(i*3-2:i*3,:), data(am_cams*3-2:am_cams*3,:));
-%end
-
-
-% check error in the estimated homographies
+% speed it up - determine inverse Homographies first
+hom_inv = cell(am_cams,1);
+sizex_vec = zeros(am_cams,1);
+sizey_vec = zeros(am_cams,1);
+ 
 for hi1 = 1:am_cams
-  [error_mean, error_max] = check_error_homographies(homographies{hi1},data(3*hi1-2:3*hi1,:),data(3*ref_view-2:3*ref_view,:));
-  fprintf('Between view %d and ref. view; ', hi1); % Info
-  fprintf('average error: %5.2f; maximum error: %5.2f \n', error_mean, error_max);
+  hom_inv{hi1} = inv(homographies{hi1}); 
+  sizex_vec(hi1) = size(images{hi1},1); 
+  sizey_vec(hi1) = size(images{hi1},2); 
 end
 
-% create the new warped image
-panorama_image = generate_warped_image(images, homographies);
+% Information
+fprintf('\nThe panoramic image will be of size (x,y): %d , %d \n\n', pan_sizex, pan_sizey);
 
-% show it
-figure;  
-show_image_grey(panorama_image);
 
-% save it 
-save_image_grey(name_panorama,panorama_image);
+% warp all the images into image1 (fast version)
+
+% generate coordinates for all points in image1
+x1=reshape((1:pan_sizex)'*ones(1,pan_sizey),[1,pan_sizex*pan_sizey]);
+y1=reshape(ones(pan_sizex,1)*(1:pan_sizey),[1,pan_sizex*pan_sizey]);
+points=[x1-pan_shiftx; y1-pan_shifty; ones(size(x1))];
+
+
+for j=1:am_cams
+  
+  % Information
+  fprintf('Map image: %d\n',j); 
+
+  % transform coordinates according to homographies
+  points_map=hom_inv{j}*points;
+  xmap=round(points_map(1,:)./points_map(3,:));
+  ymap=round(points_map(2,:)./points_map(3,:));
+
+  % identify valid coordinates
+  mask=(xmap<1)+(xmap>sizex_vec(j))+(ymap<1)+(ymap>sizey_vec(j)); % 0 if a point index is inside 
+  valind=find(~mask); % gives the index in image1
+
+  % get gray-values at valid points and warp them to image1
+  grayvalind=((ymap(valind)-1)*sizex_vec(j))+xmap(valind);
+  image1(valind)=images{j}(grayvalind);
+end
