@@ -14,23 +14,23 @@ load( '../debug/part1/homographies.mat' );
 
 %% Test the function det_homographies
 
-fprintf('--------------------\n')
-fprintf(' HOMOGRAPHIES ERROR \n')
-fprintf('--------------------\n')
+%fprintf('--------------------\n')
+%fprintf(' HOMOGRAPHIES ERROR \n')
+%fprintf('--------------------\n')
 
-homographies_test = zeros(3,3,CAMERAS); 
+%homographies_test = zeros(3,3,CAMERAS);
 
-for c=1:CAMERAS
-    points_ref = points2d(:,:,REFERENCE_VIEW);
-    points_c   = points2d(:,:,c);
-    
-    homographies_test(:,:,c) = compute_homography( points_ref, points_c );
-    
-    homographies(:,:,c)      = fix_homogeneous_scale( homographies(:,:,c)      );
-    homographies_test(:,:,c) = fix_homogeneous_scale( homographies_test(:,:,c) );
-end
+%for c=1:CAMERAS
+%    points_ref = points2d(:,:,REFERENCE_VIEW);
+%    points_c   = points2d(:,:,c);
+%    
+%    homographies_test(:,:,c) = compute_homography( points_ref, points_c );
+%    
+%    homographies(:,:,c)      = fix_homogeneous_scale( homographies(:,:,c)      );
+%    homographies_test(:,:,c) = fix_homogeneous_scale( homographies_test(:,:,c) );
+%end
 
-homographies_error = homographies - homographies_test
+%homographies_error = homographies - homographies_test
 
 
 %% Test the function get_normalization_matrices 

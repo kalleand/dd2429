@@ -22,12 +22,8 @@ function E = compute_E_matrix( points2d, K )
 %------------------------------
 % TODO: FILL IN THIS PART
 
-k1_inv = inv(K(:,:,1));
-k2_inv = inv(K(:,:,2));
-
-
-points2d_1 = k1_inv * points2d(:,:,1);
-points2d_2 = k2_inv * points2d(:,:,2);
+points2d_1 = K(:,:,1) \ points2d(:,:,1);
+points2d_2 = K(:,:,2) \ points2d(:,:,2);
 
 p(:,:,1) = points2d_1;
 p(:,:,2) = points2d_2;
@@ -53,15 +49,45 @@ Q = [xb.*xa;
     ya;
     ones(1,size(points2d, 2))].';   
 
-[U S V] = svd(Q);
+[~, ~, V] = svd(Q);
     
 f = V(:,end);
 F = [f(1:3).'; f(4:6).'; f(7:9).'];
 
-for p = 1:size(points2d, 2)
-    points2d_norm_2(:,p).' * F * points2d_norm_1(:,p)
-end
-
 E = N(:,:,2).' * F * N(:,:,1);
+
+[U, S, V] = svd(E);
+
+S_correct = (S(1,1) + S(2,2))/ 2;
+
+S_new = [S_correct, 0,         0;
+     0,         S_correct, 0;
+     0,         0,         0];
+
+E = U * S_new * V.';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

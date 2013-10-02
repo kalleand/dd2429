@@ -30,8 +30,8 @@ for cam = 1:am_cams
     c_y = 0;
     points = 0;
     for p = 1:am_points
-        p_x = points2d(1,p);
-        p_y = points2d(2,p);
+        p_x = points2d(1,p,cam);
+        p_y = points2d(2,p,cam);
         if not(isnan(p_x))
             c_x = c_x + p_x;
             c_y = c_y + p_y;
@@ -44,8 +44,8 @@ for cam = 1:am_cams
     % Evaluate mean distance for the points in the image.
     distance = 0;
     for p = 1:am_points
-        p_x = points2d(1,p);
-        p_y = points2d(2,p);
+        p_x = points2d(1,p,cam);
+        p_y = points2d(2,p,cam);
         if not(isnan(p_x))
             distance = distance + sqrt((p_x - c_x)^2 + (p_y - c_y)^2);
         end
