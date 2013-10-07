@@ -52,21 +52,19 @@ if d2 == -1
 end
 
 t = V(:,end);
-cam_centers(:,2) = [-t; 1];
-
 Kb = K(:,:,2);
 
-RIt(:,:,1) = Kb * R1 * [eye(3), t];
-RIt(:,:,2) = Kb * R1 * [eye(3), -t];
-RIt(:,:,3) = Kb * R2 * [eye(3), t];
-RIt(:,:,4) = Kb * R2 * [eye(3), -t];
+RIt(:,:,1) = R1 * [eye(3), t];
+RIt(:,:,2) = R1 * [eye(3), -t];
+RIt(:,:,3) = R2 * [eye(3), t];
+RIt(:,:,4) = R2 * [eye(3), -t];
 
 % temporary fix.
 %cams(:,:,2) = Kb * RIt(:,:,1);
 %return;
 for i = 1:4
-    cams_tmp(:,:,1) = cams(:,:,1);
-    cams_tmp(:,:,2) = RIt(:,:,i);
+    cams_tmp(:,:,1) = K(:,:,1) * [eye(3), zeros(3,1)];
+    cams_tmp(:,:,2) = Kb * RIt(:,:,i);
     p(:,:,i) = reconstruct_point_cloud(cams_tmp, points2d);
     p(:,:,i) = p(:,:,i) / p(end,:,i);
 end
@@ -74,7 +72,7 @@ end
 Ma = [eye(3), zeros(3,1)];
 
 for i = 1:4
-    gp_first_camera = Ma*p(:,:,i) p(:,:,i);
+    gp_first_camera = Ma*p(:,:,i);
     if i == 1
         gp = R1 * [eye(3), t] * p(:,:,i);
     elseif i == 2
@@ -86,11 +84,13 @@ for i = 1:4
     end
 
     if sign(gp(3)) == 1 && sign(gp_first_camera(3)) == 1
-        cam(:,:,2) = RIt(:,:,i);
-        if(i == 1 || i == 3)
+        cams(:,:,2) = Kb * RIt(:,:,i);
+        fprintf('Using alternative %d\n', i);
+        if i == 1 || i == 3
             cam_centers(:,2) = [-t; 1];
         else
             cam_centers(:,2) = [t; 1];
         end
+        return
     end
 end
