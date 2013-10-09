@@ -65,16 +65,16 @@ p = zeros(4,1,4);
 for i = 1:4
     cams(:,:,2) = Kb * RIt(:,:,i);
     p(:,1,i) = reconstruct_point_cloud(cams, points2d(:,1,:));
-    p(:,1,i) = p(:,1,i) ./ p(end,1,i);
+    p(:,1,i) = homogenous_to_cartesian(p(:,1,i));
+    %p(:,1,i) = p(:,1,i) ./ p(end,1,i);
 end
-p
 
 for i = 1:4
 %     gp_first_camera = Ma*p(:,1,i);
-    gp = RIt(:,:,i) * p(:,1,i);
+    gp = RIt(:,:,i) * [p(:,1,i); 1];
+    
 
     if sign(p(3,:,i)) == 1
-        gp
         if sign(gp(3)) == 1
             cams(:,:,2) = Kb * RIt(:,:,i);
             fprintf('Using alternative %d\n', i);
@@ -83,10 +83,9 @@ for i = 1:4
             else
                 cam_centers(:,2) = [t; 1];
             end
-%             return
         end
     end
 end
 
-cams(:,:,2) = Kb * RIt(:,:,1);
-cam_centers(:,2) = [-t; 1];
+%cams(:,:,2) = Kb * RIt(:,:,1);
+%cam_centers(:,2) = [-t; 1];
