@@ -28,10 +28,12 @@ function [cams, cam_centers] = reconstruct_stereo_cameras( E, K, points2d )
 %------------------------------
 % TODO: FILL IN THIS PART
 
-cams(:,:,1) = K(:,:,1) * [eye(3), zeros(3,1)];
-
+Ma = [eye(3), zeros(3,1)];
+Ka = K(:,:,1);
+Kb = K(:,:,2);
+cams(:,:,1) = Ka * Ma;
 cam_centers(:,1) = [zeros(3,1); 1];
-
+ 
 W = [0, -1, 0;
      1,  0, 0;
      0,  0, 1];
@@ -45,52 +47,46 @@ d1 = det(R1);
 d2 = det(R2);
 
 if d1 == -1
-    R1 = -1 * R1;
+    R1 = R1 .* -1;
 end
 if d2 == -1
-    R2 = -1 * R2;
+    R2 = R2 .* -1;
 end
 
 t = V(:,end);
-Kb = K(:,:,2);
+
 
 RIt(:,:,1) = R1 * [eye(3), t];
 RIt(:,:,2) = R1 * [eye(3), -t];
 RIt(:,:,3) = R2 * [eye(3), t];
 RIt(:,:,4) = R2 * [eye(3), -t];
 
-% temporary fix.
-%cams(:,:,2) = Kb * RIt(:,:,1);
-%return;
+p = zeros(4,1,4);
 for i = 1:4
-    cams_tmp(:,:,1) = K(:,:,1) * [eye(3), zeros(3,1)];
-    cams_tmp(:,:,2) = Kb * RIt(:,:,i);
-    p(:,:,i) = reconstruct_point_cloud(cams_tmp, points2d);
-    p(:,:,i) = p(:,:,i) / p(end,:,i);
+    cams(:,:,2) = Kb * RIt(:,:,i);
+    p(:,1,i) = reconstruct_point_cloud(cams, points2d(:,1,:));
+    p(:,1,i) = p(:,1,i) ./ p(end,1,i);
 end
-
-Ma = [eye(3), zeros(3,1)];
+p
 
 for i = 1:4
-    gp_first_camera = Ma*p(:,:,i);
-    if i == 1
-        gp = R1 * [eye(3), t] * p(:,:,i);
-    elseif i == 2
-        gp = R1 * [eye(3), -t] * p(:,:,i);
-    elseif i == 3
-        gp = R2 * [eye(3), t] * p(:,:,i);
-    elseif i == 4
-        gp = R2 * [eye(3), -t] * p(:,:,i);
-    end
+%     gp_first_camera = Ma*p(:,1,i);
+    gp = RIt(:,:,i) * p(:,1,i);
 
-    if sign(gp(3)) == 1 && sign(gp_first_camera(3)) == 1
-        cams(:,:,2) = Kb * RIt(:,:,i);
-        fprintf('Using alternative %d\n', i);
-        if i == 1 || i == 3
-            cam_centers(:,2) = [-t; 1];
-        else
-            cam_centers(:,2) = [t; 1];
+    if sign(p(3,:,i)) == 1
+        gp
+        if sign(gp(3)) == 1
+            cams(:,:,2) = Kb * RIt(:,:,i);
+            fprintf('Using alternative %d\n', i);
+            if i == 1 || i == 3
+                cam_centers(:,2) = [-t; 1];
+            else
+                cam_centers(:,2) = [t; 1];
+            end
+%             return
         end
-        return
     end
 end
+
+cams(:,:,2) = Kb * RIt(:,:,1);
+cam_centers(:,2) = [-t; 1];
