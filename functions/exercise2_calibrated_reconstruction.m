@@ -18,8 +18,8 @@ SYNTHETIC_DATA      = 1;    % Choose this to use the synthetic data.
 REAL_DATA_CLICK     = 2;    % Choose this to measure and save new real data.
 REAL_DATA_LOAD      = 3;    % Choose this to load real data.
 % VERSION             = SYNTHETIC_DATA;
-%VERSION             = REAL_DATA_CLICK;
- VERSION             = REAL_DATA_LOAD;
+% VERSION             = REAL_DATA_CLICK;
+VERSION             = REAL_DATA_LOAD;
 
 if VERSION == SYNTHETIC_DATA
     points2d_file = 'data/data_sphere.mat';
