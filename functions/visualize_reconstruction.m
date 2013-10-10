@@ -44,6 +44,17 @@ grid on
 
 % ------------------------
 % TODO: FILL IN THIS PART
-triang = delaunay(X,Y);
-trisurf(triang, X, Y, Z);
+
+% figure(2)
+% hold on
+% tri = get_delaunay_triang(points2d_cartesian, 1);
+tri = delaunay(points2d_cartesian(1,:,1), points2d_cartesian(2,:,1));
+trisurf(tri,X,Y,Z,ones(size(X)));
+% view(126,20)
+% axis equal
+% axis vis3d
+% grid on
+
+if not(isempty(texture))
+    draw_textured_triangles(tri, X, Y, Z, points2d_cartesian(2,:,1), points2d_cartesian(1,:,1), texture, 32);
 end
