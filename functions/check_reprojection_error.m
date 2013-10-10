@@ -25,6 +25,7 @@ function [error_average, error_max] = check_reprojection_error( points2d, camera
 
 %------------------------------
 % TODO: FILL IN THIS PART
+
 error_max = 0;
 error = 0;
 C = size(cameras, 3);

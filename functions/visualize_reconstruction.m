@@ -44,6 +44,6 @@ grid on
 
 % ------------------------
 % TODO: FILL IN THIS PART
-triang = delaunay(X,Y,Z);
+triang = delaunay(X,Y);
 trisurf(triang, X, Y, Z);
 end

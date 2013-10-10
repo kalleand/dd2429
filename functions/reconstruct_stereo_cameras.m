@@ -43,15 +43,8 @@ W = [0, -1, 0;
 R1 = U * W * V';
 R2 = U * W' * V';
 
-d1 = det(R1);
-d2 = det(R2);
-
-if d1 == -1
-    R1 = R1 .* -1;
-end
-if d2 == -1
-    R2 = R2 .* -1;
-end
+R1 = R1 * det(R1);
+R2 = R2 * det(R2);
 
 t = V(:,end);
 
@@ -62,16 +55,16 @@ RIt(:,:,3) = R2 * [eye(3), t];
 RIt(:,:,4) = R2 * [eye(3), -t];
 
 p = zeros(4,1,4);
-for i = 1:4
-    cams(:,:,2) = Kb * RIt(:,:,i);
-    p(:,1,i) = reconstruct_point_cloud(cams, points2d(:,1,:));
-    p(:,1,i) = homogenous_to_cartesian(p(:,1,i));
-    %p(:,1,i) = p(:,1,i) ./ p(end,1,i);
-end
+cams_tmp(:,:,1) = Ka * Ma;
 
 for i = 1:4
-%     gp_first_camera = Ma*p(:,1,i);
-    gp = RIt(:,:,i) * [p(:,1,i); 1];
+
+    cams_tmp(:,:,2) = Kb * RIt(:,:,i);
+    p(:,1,i) = reconstruct_point_cloud(cams_tmp, points2d(:,1,:));
+    p(:,1,i) = [homogeneous_to_cartesian(p(:,1,i)); 1];
+end
+for i = 1:4
+    gp = RIt(:,:,i) * p(:,1,i);
     
 
     if sign(p(3,:,i)) == 1
@@ -86,6 +79,3 @@ for i = 1:4
         end
     end
 end
-
-%cams(:,:,2) = Kb * RIt(:,:,1);
-%cam_centers(:,2) = [-t; 1];
