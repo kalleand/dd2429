@@ -1,14 +1,17 @@
 Questions for lab2.
 
 * Question 1.
-	The number of degrees of freedom of E and E_corr for:
-	* Points correspond perfectly: 0
-	* Points does not correspond perfectly: 8
+	The rank of the matrix E and E_corr when:
+	* Points correspond perfectly: full rank (or maybe full rank - 1 due to
+	  homogenous equation system)
+	* Points does not correspond perfectly: the rank is not full due
+	  to some vectors being linear combinations of others in the E matrix.
 
 * Question 2.
 	This can be detected in the singular value decomposition.
-	Namely in the S matrix - which is a diagonal matrix containing
-	the singular values - by noting that all points are 0.
+	Namely in the V matrix - which is a diagonal matrix containing
+	the singular values - by noting that all points are 0 or close
+	to each other (unstable solution).
 
 * Question 3.
 	You would construct several E matrices. One E matrix for
