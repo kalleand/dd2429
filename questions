@@ -1,0 +1,20 @@
+Questions for lab2.
+
+* Question 1.
+	The number of degrees of freedom of E and E_corr for:
+	* Points correspond perfectly: 0
+	* Points does not correspond perfectly: 8
+
+* Question 2.
+	This can be detected in the singular value decomposition.
+	Namely in the S matrix - which is a diagonal matrix containing
+	the singular values - by noting that all points are 0.
+
+* Question 3.
+	You would construct several E matrices. One E matrix for
+	camera 1 to 2, one E matrix for camera 2 to 3 and so on to
+	the last E matrix that maps camera m to 1.	
+
+* Question 4.
+	More points and more cameras. Solving the optimization problem
+	of minimizing the error would improve the model a lot as well.
