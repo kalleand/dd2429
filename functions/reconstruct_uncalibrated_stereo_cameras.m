@@ -13,6 +13,27 @@
 
 function [cams, cam_centers] = reconstruct_uncalibrated_stereo_cameras( F )
 
+% cams = zeros(3,4,2);
+% cam_centers = zeros(4,2);
 
-%------------------------------
-% TODO: FILL IN THIS PART
+Ma = [eye(3), zeros(3,1)];
+cams(:,:,1) = Ma;
+cam_centers(:,1) = [zeros(3,1); 1];
+
+
+W = [0, -1, 1;
+     1,  0, -1;
+     -1,  1, 0];
+ 
+
+
+[~, ~, V] = svd(F');
+
+h = V(:,end);
+
+Mb = [W*F, h];
+cams(:,:,2) = Mb;
+
+[~, ~, V] = svd(Mb);
+
+cam_centers(:,2) = V(:,end);

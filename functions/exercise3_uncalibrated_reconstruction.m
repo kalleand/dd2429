@@ -21,7 +21,7 @@ image_names_file    = 'names_images_toyhouse.txt';
 SYNTHETIC_DATA      = 1;
 REAL_DATA_CLICK     = 2;
 REAL_DATA_LOAD      = 3;
-VERSION             = SYNTHETIC_DATA;
+VERSION             = REAL_DATA_LOAD;
 
 if VERSION == SYNTHETIC_DATA
     points2d_file = '../data/data_sphere.mat';
@@ -78,19 +78,21 @@ else
 
     % Manually provide the ground truth 3D coordinates for some points
     % in order to rectify:
-  
-    %------------------------------
-    % FILL IN THIS PART 
+    indices = [1,2,3,4,7,8];
+    points3d_ground_truth(:,1) = [0,    0,  0,  1]';
+    points3d_ground_truth(:,2) = [-10,  0,  0,  1]';
+    points3d_ground_truth(:,3) = [-10,  0,  9,  1]';
+    points3d_ground_truth(:,4) = [0,    0,  9,  1]';
+    points3d_ground_truth(:,5) = [0,    27, 0,  1]';
+    points3d_ground_truth(:,6) = [-5,   27, 15, 1]';
     
 end
 
 H = compute_rectification_matrix( points3d(:,indices), points3d_ground_truth );
 
 % Rectify the points:
-
-%------------------------------
-% FILL IN THIS PART 
-
+points3d = H * points3d;
+camera_centers = H * camera_centers;
 
 visualize_reconstruction( points3d, camera_centers, ...
     points2d( :, :, REFERENCE_VIEW ), images{REFERENCE_VIEW} )

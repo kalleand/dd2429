@@ -1,4 +1,4 @@
-% Test script for exercise 3
+    % Test script for exercise 3
 
 clear all                   % Remove all old variables
 close all                   % Close all figures

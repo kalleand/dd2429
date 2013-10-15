@@ -40,6 +40,9 @@ plot3( camx, camy, camz, 'ro' );
 view(126,20)
 axis equal
 axis vis3d
+% xlabel('x');
+% ylabel('y');
+% zlabel('z');
 grid on
 
 % ------------------------
