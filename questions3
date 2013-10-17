@@ -1,17 +1,35 @@
 1. How do you determine the rectification matrix H in an optimal way if you have more than 5 3D points given?
-	With more than 5 points, the equationsystem will get overdetermined.
+    With more than 5 points, the equationsystem will get overdetermined. As five
+    points are the absolute minimum amount of points to be able to get the
+    required 15 eqations to determine H we will get a better solution by
+    increasing the amount of points and by doing so increasing the amount of
+    equations in the equationsystem.
 
-1. What is the condition that two set of points define a unique rectification matrix H?
-	That all the points aren't on a plane.
+2. What is the condition that two set of points define a unique rectification matrix H?
+    That all the points are not located on a plane.
 
-1. Assume that you do not rectify the model. What kind of error can occur if you convert the 3D point cloud from homogenous coordinates to Cartesian coordinates using the function homogenous_to_cartesian?
-	You could get an undefined scale.
+3. Assume that you do not rectify the model. What kind of error can occur if you convert the 3D point cloud from homogenous coordinates to Cartesian coordinates using the function homogenous_to_cartesian?
+    You do not get metric properties.  You could get an undefined scale or you get
+    wrong angles.
 
-1. How many degrees of freedom has the rectiﬁcation matrix H? And how many degrees of freedom of H do you have to ﬁx in order to rectify the 3D point cloud to Euclidean space? Note, a model in the Euclidean space can only be rotated and translated.
-	The H matrix has 4 degrees of freedom, but with euclidean space you have to fix 2 degrees of freedom.
-	
- 1. Assume that you have 3 cameras and n >= 8 3D points which are visible in all views. The cameras and the 3D points are unknown. How do you obtain 3 correct camera matrices? If you have achieved this, how would you obtain all the 3D points?
-	You would calculate the F matrix between each camera, 1-2, 1-3 (if 1 is the reference view). Solve the optimization problem, minimize the sum of the squared errors, as seen in the lecture notes 167.
+4. How many degrees of freedom has the rectiﬁcation matrix H? And how many
+degrees of freedom of H do you have to ﬁx in order to rectify the 3D point cloud
+to Euclidean space? Note, a model in the Euclidean space can only be rotated and
+translated.
+    The H matrix has either 0, if over determined, or 1 degrees of freedom, but
+    with euclidean space you have to fix 3 degree of freedom.
 
-1. Assume that you have extended this method to more than two views. What are the main differences between this method and the factorization method for multiple parallell projection cameras described in section 4 of the lecture notes?
-	Since the cameras are parallel, the math is somewhat easier. You get the relation between the 3d and 2d coordinates directly by W = C*DP*^T	
+ 5. Assume that you have 3 cameras and n >= 8 3D points which are visible in all
+ views. The cameras and the 3D points are unknown. How do you obtain 3 correct
+ camera matrices? If you have achieved this, how would you obtain all the 3D
+ points?
+    You would calculate the F matrix between each camera, 1-2, 1-3 (if 1 is the
+    reference view). Solve the optimization problem, minimize the sum of the
+    squared errors, as seen in the lecture notes 167.
+
+6. Assume that you have extended this method to more than two views. What are
+the main differences between this method and the factorization method for
+multiple parallell projection cameras described in section 4 of the lecture
+notes?
+    Since the cameras are parallel, the math is somewhat easier. You get the
+    relation between the 3d and 2d coordinates directly by W = C_star*D*P_star*^T
